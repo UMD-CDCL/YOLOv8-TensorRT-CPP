@@ -32,9 +32,9 @@ This project demonstrates how to use the TensorRT C++ API to run GPU inference f
 It makes use of my other project [tensorrt-cpp-api](https://github.com/cyrusbehr/tensorrt-cpp-api) to run inference behind the scene, so make sure you are familiar with that project.
 
 ### Prerequisites
-- Tested and working on Ubuntu 20.04
-- Install CUDA, instructions [here](https://developer.nvidia.com/cuda-11-8-0-download-archive).
-  - Recommended >= 11.8 
+- Tested and working on Ubuntu 20.04 & 22.04 (Windows is **not** supported at this time)
+- Install CUDA, instructions [here](https://developer.nvidia.com/cuda-downloads).
+  - Recommended >= 12.0 
 - Install cudnn, instructions [here](https://docs.nvidia.com/deeplearning/cudnn/install-guide/index.html#download).
   - Recommended >= 8
 - `sudo apt install build-essential`
@@ -42,9 +42,8 @@ It makes use of my other project [tensorrt-cpp-api](https://github.com/cyrusbehr
 - `pip3 install cmake`
 - Install OpenCV with cuda support. To compile OpenCV from source, run the `build_opencv.sh` script provided [here](https://github.com/cyrusbehr/tensorrt-cpp-api/blob/ec6a7529a792b2a9b1ab466f2d0e2da5df47543d/scripts/build_opencv.sh).
   - Recommended >= 4.8
-- Download TensorRT 8 from [here](https://developer.nvidia.com/nvidia-tensorrt-8x-download).
-  - Recommended >= 8.6
-  - Required >= 8.0
+- Download TensorRT 10 from [here](10x).
+  - Required >= 10.0
 - Extract, and then navigate to the `CMakeLists.txt` file and replace the `TODO` with the path to your TensorRT installation.
 
 
@@ -90,15 +89,21 @@ It is advised to use 1K+ calibration images. To enable INT8 inference with the Y
 - If you'd like to benchmark each component (`preprocess`, `inference`, `postprocess`), recompile setting the `ENABLE_BENCHMARKS` flag to `ON`: `cmake -DENABLE_BENCHMARKS=ON ..`.
   - You can then rerun the executable
 
-Benchmarks run on RTX 3050 Ti Laptop GPU, 11th Gen Intel(R) Core(TM) i9-11900H @ 2.50GHz using 640x640 BGR image in GPU memory and FP16 precision. 
+Benchmarks run on NVIDIA GeForce RTX 3080 Laptop GPU, Intel(R) Core(TM) i7-10870H CPU @ 2.20GHz using 640x640 BGR image in GPU memory and FP16 precision. 
 
 | Model        | Total Time | Preprocess Time | Inference Time | Postprocess Time |
 |--------------|------------|-----------------|----------------|------------------|
-| yolov8n      | 3.753 ms   | 0.084 ms        | 2.625 ms       | 1.013 ms         |
-| yolov8n-pose | 2.992 ms   | 0.084 ms        | 2.571 ms       | 0.315 ms         |
-| yolov8n-seg  | 15.309 ms  | 0.110 ms        | 4.305 ms       | 10.792 ms        |
+| yolov8n      | 3.613 ms   | 0.081 ms        | 1.703 ms       | 1.829 ms         |
+| yolov8n-pose | 2.107 ms   | 0.091 ms        | 1.609 ms       | 0.407 ms         |
+| yolov8n-seg  | 15.194 ms  | 0.109 ms        | 2.732 ms       | 12.353 ms        |
 
-TODO: Need to improve postprocessing time. 
+| Model   	| Precision 	| Total Time 	| Preprocess Time 	| Inference Time 	| Postprocess Time 	|
+|---------	|-----------	|------------	|-----------------	|----------------	|------------------	|
+| yolov8x 	| FP32      	| 25.819 ms  	| 0.103 ms        	| 23.763 ms      	| 1.953 ms         	|
+| yolov8x 	| FP16      	| 10.147 ms  	| 0.083 ms        	| 7.677 ms       	| 2.387 ms         	|
+| yolov8x 	| INT8      	| 7.32 ms    	| 0.103 ms        	| 4.698 ms       	| 2.519 ms         	|
+
+TODO: Need to improve postprocessing time using CUDA kernel. 
 
 ### How to debug
 - If you have issues creating the TensorRT engine file from the onnx model, navigate to `libs/tensorrt-cpp-api/src/engine.cpp` and change the log level by changing the severity level to `kVERBOSE` and rebuild and rerun. This should give you more information on where exactly the build process is failing.
